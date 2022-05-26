@@ -7,6 +7,7 @@ local tileDisplayGroup = display.newGroup() -- Group all the tile instances toge
 --Grid and Image Settings
 local scaleFactor = 0.5
 local settings = {
+    scaleFactor = scaleFactor,
     rows = 4,
     cols = 6,
     tileWidth = 256*scaleFactor,
@@ -17,6 +18,16 @@ local settings = {
 }
 
 
+--randomise the sequence
+local function randomSequence(thisTile)
+    if math.random(0, 1) > 0 then
+        thisTile.image:setSequence("grass")
+    else
+        thisTile.image:setSequence("ice")
+    end
+end
+
+
 --Requires: an array to populate, global settings and a displayGroup to insert tile instances in to.
 local function createHexGrid(array, settings, displayGroup)
     --Populate the array with rows and cols variables making it a multidimentional array
@@ -24,10 +35,12 @@ local function createHexGrid(array, settings, displayGroup)
         array[i] = {}   -- create a new col
         for j=1, settings.rows do
             local mod = math.fmod(i,2)  -- get Modulo to determin if this is an odd(1) or even(0) row entry (needed for staggered depth)
-            local tileInstance = Tile:new{color="grass", depth=j, settings=settings}
+            local tileInstance = Tile:new{color="grass", settings=settings}
             tileInstance.group.x = i*settings.innerWidth*1.5
             tileInstance.group.y = j*settings.innerHeight-(mod*settings.innerHeight/2) -- use mod (1 or 0) as depth multiplyer
             --tileInstance.label.text = tileInstance.group.y
+            randomSequence(tileInstance)
+            tileInstance.image:play()
             displayGroup:insert(tileInstance.group)
             array[i][j] = tileInstance
         end
