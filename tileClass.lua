@@ -1,9 +1,8 @@
 --Default Tile object and properties.
 local Tile = {
-    color="blue",
-    type="hex", -- not used yet
+    type="grass", -- determins what sequence to use in sprite imageSheet
     decoration="blank", --not used yet
-    depth=0 --not used yet
+    depth=0 -- used as offset on Y-Axis to give impression of depth
 }
 
 
@@ -18,7 +17,7 @@ function Tile:new( ... )
 
     --Set up new display group with image and label for this tile instance
     newTile.group = display.newGroup()
-    newTile.image = newTile:setImageSheet(newTile.color.."Tile.png")
+    newTile.image = newTile:setImageSheet()
     newTile.label = newTile:setLabel(--[[newTile.depth]])
     newTile.group:insert(newTile.image)
     newTile.group:insert(newTile.label)
@@ -34,9 +33,9 @@ function Tile:setImage(filename)
     return display.newImageRect(filename, self.settings.tileWidth, self.settings.tileHeight )
 end
 
-function Tile:setImageSheet()
+function Tile:setImageSheet(imageSheet, options, sequenceData)
 
-    local options =
+    local options = options or
     {
         --required parameters
         width = 256,
@@ -47,19 +46,18 @@ function Tile:setImageSheet()
         sheetContentWidth = 512,  -- width of original 1x size of entire sheet
         sheetContentHeight = 256  -- height of original 1x size of entire sheet
     }
-    local imageSheet = graphics.newImageSheet( "tileSheet.png", options )
+    local imageSheet = imageSheet or graphics.newImageSheet( "tileSheet.png", options )
 
-    local sequenceData =
+    local sequenceData = sequenceData or
     {
         { name="ice", frames={ 1 }, count=1 },
         { name="grass", frames={ 2 }, count=1},
     }
 
-    local tile = display.newSprite( imageSheet, sequenceData )
-    tile:scale( 0.5, 0.5 )
-    tile:setSequence("grass")
-    tile:play()
-    return tile
+    local sprite = display.newSprite( imageSheet, sequenceData )
+    sprite:scale( self.settings.scaleFactor, self.settings.scaleFactor )
+    sprite:setSequence(self.type)
+    return sprite
 
 end
 
@@ -90,5 +88,18 @@ function Tile:setDepth(passedDepth)
     self.image:setFillColor(1, 1, 1, (1-(self.depth/self.settings.frontHeight)*0.20)) -- reduce opacity for deeper groups.
 end
 
+function Tile:drawLines(enter, exit)
+    local line = display.newLine(
+        0, 0-23*self.settings.scaleFactor,
+        93*self.settings.scaleFactor, 33*self.settings.scaleFactor,
+        93*self.settings.scaleFactor,33*self.settings.scaleFactor+self.settings.frontHeight
+    )
+    --line:append( 305,165, 243,216, 265,290, 200,245, 135,290, 157,215, 95,165, 173,165, 200,90 )
+    line:setStrokeColor( 1, 0, 0, 1 )
+    line.strokeWidth = 2
+    self.group:insert(line)
+
+    --line.parent:insert( line )
+end
 
 return Tile -- return the Tile instance
