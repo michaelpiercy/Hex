@@ -2,7 +2,8 @@
 local Tile = {
     type="grass", -- determins what sequence to use in sprite imageSheet
     decoration="blank", --not used yet
-    depth=0 -- used as offset on Y-Axis to give impression of depth
+    depth=0, -- used as offset on Y-Axis to give impression of depth
+
 }
 
 
@@ -17,6 +18,7 @@ function Tile:new( ... )
 
     --Set up new display group with image and label for this tile instance
     newTile.group = display.newGroup()
+    newTile.group.anchorChildren = true
     newTile.image = newTile:setImageSheet()
     newTile.label = newTile:setLabel(--[[newTile.depth]])
     newTile.group:insert(newTile.image)
@@ -57,9 +59,22 @@ function Tile:setImageSheet(imageSheet, options, sequenceData)
     local sprite = display.newSprite( imageSheet, sequenceData )
     sprite:scale( self.settings.scaleFactor, self.settings.scaleFactor )
     sprite:setSequence(self.type)
+    sprite:addEventListener("touch", self) -- adding event listener on the sprite
+    sprite:setMask(graphics.newMask( "maskTile.png" )) -- add mask
     return sprite
 
 end
+
+
+function Tile:touch(e)
+    local phase = e.phase
+    if phase == ("ended") then
+        local event = { name="activateTile", message="activate", target=self } -- self is the Tile instance
+        Runtime:dispatchEvent( event )
+        return true -- stop propogation
+    end
+end
+
 
 --Add a label to the group. Helpful for debug purposes.
 function Tile:setLabel(label)
@@ -101,5 +116,6 @@ function Tile:drawLines(enter, exit)
 
     --line.parent:insert( line )
 end
+
 
 return Tile -- return the Tile instance
