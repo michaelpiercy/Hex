@@ -39,12 +39,12 @@ end
 
 --Update the group's label. Helpful for debug purposes.
 function Panel:updateLabel(message)
-      self.label.text = message
+      self.label.text = "Type: " .. message.type .. "\nRow: " .. message.row .. "\nColumn: " .. message.col
 end
 
 function Panel:updateInfo(e)
-      print("infoPanel is", e.target.type)
-      self:updateLabel(e.target.type)
+      print("infoPanel is", e.target.type, e.target.row, e.target.col)
+      self:updateLabel(e.target)
 end
 
 

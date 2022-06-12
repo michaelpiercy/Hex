@@ -1,8 +1,8 @@
 
 local Tile = require( "tileClass" ) --This sets Tile as a reference to the class file
 local Panel = require("infoPanel")  --Set Panel as info Panel Class
-local HexArray = require("exampleMap") -- Load predefined map
-
+--local HexArray = require("exampleMap") -- Load predefined map
+local HexArray = {}
 -- Set default anchor points for objects to Center, fill & background colours
 display.setDefault( "anchorX", 0.5 )
 display.setDefault( "anchorY", 0.5 )
@@ -25,7 +25,7 @@ local settings = {
       tileHeight = 256*scaleFactor,
       innerWidth = 128*scaleFactor,
       innerHeight = 209*scaleFactor,
-      frontHeight = 47*scaleFactor
+      frontHeight = 47*scaleFactor,
 }
 
 
@@ -44,9 +44,9 @@ tileDisplayGroup = setUpTileDisplayGroup()
 local function setArray(settings, array)
       local settings = settings
       if #array == 0 then -- if array is empty then lets populate it
-            for i = 1, settings.rows do
+            for i = 1, settings.cols do
                   array[i] = {}
-                  for j = 1, settings.cols do
+                  for j = 1, settings.rows do
                         array[i][j] = {math.random(1,2)}
                   end
             end
@@ -62,10 +62,13 @@ setArray(settings, HexArray)
 
 --randomise the sequence type
 local function randomSequence(thisTile)
-      if math.random(0, 1) > 0 then
+      local randomTileNum = math.random(1, 3)
+      if randomTileNum == 1 then
             thisTile.image:setSequence("grass")
-      else
+      elseif randomTileNum == 2 then
             thisTile.image:setSequence("ice")
+      elseif randomTileNum == 3 then
+            thisTile.image:setSequence("dirt")
       end
 end
 
@@ -90,14 +93,17 @@ local function createRandomHexGrid(array, settings, displayGroup)
                   array[i][j] = array[i][j] or {} -- set value to existing value or else empty
                   local tileInstance = Tile:new{
                         type=array[i][j].type, --could be nil, that's ok. Default will kick in.
-                        settings=settings
+                        settings=settings,
+                        row = j,
+                        col = i,
+                        array = array
                   }
 
                   --space out the instances based on cols and rows and offset
                   tileInstance.group.x = i*settings.innerWidth*1.5
                   tileInstance.group.y = j*settings.innerHeight-(mod*settings.innerHeight/2) -- use mod (1 or 0) as depth multiplyer
                   --tileInstance.label.text = tileInstance.group.y
-                  tileInstance:drawLines(1, 2)
+                  --tileInstance:drawLines(1, 2)
                   if settings.mapType == "random" then
                         randomSequence(tileInstance)
                   else
@@ -135,7 +141,7 @@ tileDisplayGroup.anchorX, tileDisplayGroup.anchorY = 0.5, 0.5
 
 
 --Examples of manipulating tiles
-HexArray[2][2].group.alpha = 0  -- hides tile group
+--HexArray[2][2].group.alpha = 0  -- hides tile group
 HexArray[3][3]:setDepth(settings.frontHeight) -- adds more depth
 HexArray[4][1]:setDepth(settings.frontHeight) -- adds more depth
 
@@ -149,6 +155,19 @@ local function customEventRelay(e)
       if e.name == "activateTile" then
             local event = { name="updateInfo", message=e.message, target=e.target}
             infoPanel.group:dispatchEvent( event )
+
+            local sib1, sib2 = e.target:getSiblings("N")
+            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+            local sib1, sib2 = e.target:getSiblings("S")
+            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+            local sib1, sib2 = e.target:getSiblings("NE")
+            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+            local sib1, sib2 = e.target:getSiblings("SE")
+            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+            local sib1, sib2 = e.target:getSiblings("NW")
+            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+            local sib1, sib2 = e.target:getSiblings("SW")
+            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
       end
 end
 
