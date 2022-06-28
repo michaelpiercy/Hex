@@ -158,18 +158,37 @@ local function customEventRelay(e)
             local event = { name="updateInfo", message=e.message, target=e.target}
             infoPanel.group:dispatchEvent( event )
 
-            local sib1, sib2 = e.target:getSiblings("N")
-            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-            local sib1, sib2 = e.target:getSiblings("S")
-            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-            local sib1, sib2 = e.target:getSiblings("NE")
-            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-            local sib1, sib2 = e.target:getSiblings("SE")
-            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-            local sib1, sib2 = e.target:getSiblings("NW")
-            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-            local sib1, sib2 = e.target:getSiblings("SW")
-            if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+            --if a tile is already selected
+            if settings.focusTile then
+                  --unhighlight everything that's already highlighted
+                  for i = 1, #HexArray do
+                        for j = 1, #HexArray[i] do
+                              if HexArray[i][j] then HexArray[i][j]:unhighlight() end
+                        end
+                  end
+            end
+
+            --if the same tile was selected again, then unhighlight that too
+            if settings.focusTile == e.target then
+                  e.target:unhighlight()
+                  settings.focusTile = nil
+                  return true
+            else -- otherwise highlight the selected tile and it's siblings
+                  local sib1, sib2 = e.target:getSiblings("N")
+                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  local sib1, sib2 = e.target:getSiblings("S")
+                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  local sib1, sib2 = e.target:getSiblings("NE")
+                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  local sib1, sib2 = e.target:getSiblings("SE")
+                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  local sib1, sib2 = e.target:getSiblings("NW")
+                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  local sib1, sib2 = e.target:getSiblings("SW")
+                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  local selectedTile = e.target
+                  selectedTile:highlight()
+            end
       end
 end
 

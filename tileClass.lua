@@ -80,7 +80,6 @@ function Tile:touch(e)
     if phase == ("ended") then
         local event = { name="activateTile", message="activate", target=self } -- self is the Tile instance
         Runtime:dispatchEvent( event )
-        self:highlight()
         return true -- stop propogation
     end
 end
@@ -154,12 +153,7 @@ end
 --Turns on the highlight of the tile in focus - and associates focusTile in settings
 --Optional r,g,b,a - decimal fraction values for specific colour settings
 function Tile:highlight(r, g, b, a)
-      if self.settings.focusTile then
-            self.settings.focusTile:unhighlight()
-      end
-
       self.settings.focusTile = self
-
       self.outline.alpha = a or 0.75
       self.outline:setFillColor( r or 1, g or 1, b or 1 )
 end
