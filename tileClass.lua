@@ -1,8 +1,8 @@
 --Default Tile object and properties.
 local Tile = {
-    type="grass", -- determins what sequence to use in sprite imageSheet
-    decoration="blank", --not used yet
-    depth=0, -- used as offset on Y-Axis to give impression of depth
+    type = "grass", -- determins what sequence to use in sprite imageSheet
+    decoration = "blank", --not used yet
+    depth = 0, -- used as offset on Y-Axis to give impression of depth
     row = 0,
     col = 0,
     array = {}
@@ -64,7 +64,8 @@ function Tile:setImageSheet(imageSheet, options, sequenceData)
     local sprite = display.newSprite( imageSheet, sequenceData )
     sprite:scale( self.settings.scaleFactor, self.settings.scaleFactor )
     sprite:setSequence(self.type)
-    sprite:addEventListener("touch", self) -- adding event listener on the sprite
+    sprite:addEventListener("touch", self) -- adding touch event listener on the sprite
+    sprite:addEventListener("updateType", self) -- adding update type event listener on the sprite
     sprite:setMask(graphics.newMask( "maskTile4px.png" )) -- add mask
     return sprite
 
@@ -144,11 +145,14 @@ function Tile:getSiblings(side)
 end
 
 
+--Turns off visibility of the outline on the tile
 function Tile:unhighlight()
       self.outline.alpha = 0
 end
 
 
+--Turns on the highlight of the tile in focus - and associates focusTile in settings
+--Optional r,g,b,a - decimal fraction values for specific colour settings
 function Tile:highlight(r, g, b, a)
       if self.settings.focusTile then
             self.settings.focusTile:unhighlight()
@@ -158,7 +162,15 @@ function Tile:highlight(r, g, b, a)
 
       self.outline.alpha = a or 0.75
       self.outline:setFillColor( r or 1, g or 1, b or 1 )
+end
 
+
+--Updates the tile type and respectively the image sequence of that tile
+--Requires: type -- a string matching a sequence data entry for the Tile image
+function Tile:updateType(type)
+      self.type = type
+      self.image:setSequence(type)
+      return true
 end
 
 return Tile -- return the Tile instance

@@ -53,7 +53,7 @@ local function setArray(settings, array)
       else -- otherwise use the provided array and update settings row/col values
             settings.cols = #array
             settings.rows = #array[1]
-            settings.mapType = "provided"
+            --settings.mapType = "provided"
             return array
       end
 end
@@ -63,20 +63,22 @@ setArray(settings, HexArray)
 --randomise the sequence type
 local function randomSequence(thisTile)
       local randomTileNum = math.random(1, 3)
+      local newType
       if randomTileNum == 1 then
-            thisTile.image:setSequence("grass")
+            newType = "grass"
       elseif randomTileNum == 2 then
-            thisTile.image:setSequence("ice")
+            newType = "ice"
       elseif randomTileNum == 3 then
-            thisTile.image:setSequence("dirt")
+            newType = "dirt"
       end
+      thisTile:updateType(newType)
 end
 
 
 --specify the sequence type
 local function specifySequence(thisTile, type)
       if type then
-            return thisTile.image:setSequence(type)
+            return thisTile:updateType(type)
       end
 end
 
