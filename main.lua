@@ -173,21 +173,15 @@ local function customEventRelay(e)
                   e.target:unhighlight()
                   settings.focusTile = nil
                   return true
-            else -- otherwise highlight the selected tile and it's siblings
-                  local sib1, sib2 = e.target:getSiblings("N")
-                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-                  local sib1, sib2 = e.target:getSiblings("S")
-                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-                  local sib1, sib2 = e.target:getSiblings("NE")
-                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-                  local sib1, sib2 = e.target:getSiblings("SE")
-                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-                  local sib1, sib2 = e.target:getSiblings("NW")
-                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-                  local sib1, sib2 = e.target:getSiblings("SW")
-                  if HexArray[sib1][sib2] then HexArray[sib1][sib2]:highlight(0.95, 0.5, 0.25, 0.85) end
-                  local selectedTile = e.target
-                  selectedTile:highlight()
+            else -- otherwise highlight the selected tile and adjacent tiles
+
+                  local directions = {"N", "S", "NE", "SE", "NW", "SW"}
+                  for i = 1, #directions do
+                        local col, row = e.target:getAdjacent(directions[i])
+                        if HexArray[col] and HexArray[col][row] then HexArray[col][row]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  end
+
+                  e.target:highlight()
             end
       end
 end

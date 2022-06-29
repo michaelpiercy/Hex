@@ -129,9 +129,9 @@ end
 
 --Returns the adjacent row and col values of a particular side
 --Requires side - a string of value N, S, NW, NE, SW or SE
-function Tile:getSiblings(side)
+function Tile:getAdjacent(side)
       local mod = math.fmod(self.col,2) -- use Modulo to determine if it's an even or odd column
-      local siblings = {
+      local adjacents = {
             N = {self.row-1,self.col},
             S = {self.row+1,self.col},
             NW = {self.row-mod,self.col-1},
@@ -139,8 +139,12 @@ function Tile:getSiblings(side)
             SE = {self.row+1-mod,self.col+1},
             NE = {self.row-mod,self.col+1}
       }
-      local row, col = siblings[side][2],siblings[side][1]
-      return row, col, siblings
+      if side then
+            local row, col = adjacents[side][2],adjacents[side][1]
+            return row, col, adjacents
+      else
+            return adjacents
+      end
 end
 
 
