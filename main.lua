@@ -1,8 +1,8 @@
 
 local Tile = require( "tileClass" ) --This sets Tile as a reference to the class file
 local Panel = require("infoPanel")  --Set Panel as info Panel Class
-local HexArray = require("exampleMap") -- Load predefined map
-
+--local HexArray = require("exampleMap") -- Load predefined map
+local HexArray = {}
 -- Set default anchor points for objects to Center, fill & background colours
 display.setDefault( "anchorX", 0.5 )
 display.setDefault( "anchorY", 0.5 )
@@ -25,7 +25,7 @@ local settings = {
       tileHeight = 256*scaleFactor,
       innerWidth = 128*scaleFactor,
       innerHeight = 209*scaleFactor,
-      frontHeight = 47*scaleFactor
+      frontHeight = 47*scaleFactor,
 }
 
 
@@ -44,16 +44,16 @@ tileDisplayGroup = setUpTileDisplayGroup()
 local function setArray(settings, array)
       local settings = settings
       if #array == 0 then -- if array is empty then lets populate it
-            for i = 1, settings.rows do
+            for i = 1, settings.cols do
                   array[i] = {}
-                  for j = 1, settings.cols do
+                  for j = 1, settings.rows do
                         array[i][j] = {math.random(1,2)}
                   end
             end
       else -- otherwise use the provided array and update settings row/col values
             settings.cols = #array
             settings.rows = #array[1]
-            settings.mapType = "provided"
+            --settings.mapType = "provided"
             return array
       end
 end
@@ -62,18 +62,23 @@ setArray(settings, HexArray)
 
 --randomise the sequence type
 local function randomSequence(thisTile)
-      if math.random(0, 1) > 0 then
-            thisTile.image:setSequence("grass")
-      else
-            thisTile.image:setSequence("ice")
+      local randomTileNum = math.random(1, 3)
+      local newType
+      if randomTileNum == 1 then
+            newType = "grass"
+      elseif randomTileNum == 2 then
+            newType = "ice"
+      elseif randomTileNum == 3 then
+            newType = "dirt"
       end
+      thisTile:updateType(newType)
 end
 
 
 --specify the sequence type
 local function specifySequence(thisTile, type)
       if type then
-            return thisTile.image:setSequence(type)
+            return thisTile:updateType(type)
       end
 end
 
@@ -90,14 +95,17 @@ local function createRandomHexGrid(array, settings, displayGroup)
                   array[i][j] = array[i][j] or {} -- set value to existing value or else empty
                   local tileInstance = Tile:new{
                         type=array[i][j].type, --could be nil, that's ok. Default will kick in.
-                        settings=settings
+                        settings=settings,
+                        row = j,
+                        col = i,
+                        array = array
                   }
 
                   --space out the instances based on cols and rows and offset
                   tileInstance.group.x = i*settings.innerWidth*1.5
                   tileInstance.group.y = j*settings.innerHeight-(mod*settings.innerHeight/2) -- use mod (1 or 0) as depth multiplyer
                   --tileInstance.label.text = tileInstance.group.y
-                  tileInstance:drawLines(1, 2)
+                  --tileInstance:drawLines(1, 2)
                   if settings.mapType == "random" then
                         randomSequence(tileInstance)
                   else
@@ -135,7 +143,7 @@ tileDisplayGroup.anchorX, tileDisplayGroup.anchorY = 0.5, 0.5
 
 
 --Examples of manipulating tiles
-HexArray[2][2].group.alpha = 0  -- hides tile group
+--HexArray[2][2].group.alpha = 0  -- hides tile group
 HexArray[3][3]:setDepth(settings.frontHeight) -- adds more depth
 HexArray[4][1]:setDepth(settings.frontHeight) -- adds more depth
 
@@ -147,8 +155,40 @@ infoPanel.group.x, infoPanel.group.y = display.contentWidth/2, display.contentHe
 --Custom Runtime Listener for event dispatches
 local function customEventRelay(e)
       if e.name == "activateTile" then
-            local event = { name="updateInfo", message=e.message, target=e.target}
-            infoPanel.group:dispatchEvent( event )
+            local infoPanelUpdate = { name="updateInfo", target=e.target}
+
+
+            --if a tile is already selected
+            if settings.focusTile then
+                  --unhighlight everything that's already highlighted
+                  for i = 1, #HexArray do
+                        for j = 1, #HexArray[i] do
+                              if HexArray[i][j] then HexArray[i][j]:unhighlight() end
+                        end
+                  end
+            end
+
+            --if the same tile was selected again, then unhighlight that too
+            if settings.focusTile == e.target then
+                  e.target:unhighlight()
+                  settings.focusTile = nil
+
+                  --reset the info panel details
+                  infoPanelUpdate = { name="updateInfo", reset=true}
+
+            else -- otherwise highlight the selected tile and adjacent tiles
+
+                  local directions = {"N", "S", "NE", "SE", "NW", "SW"}
+                  for i = 1, #directions do
+                        local col, row = e.target:getAdjacent(directions[i])
+                        if HexArray[col] and HexArray[col][row] then HexArray[col][row]:highlight(0.95, 0.5, 0.25, 0.85) end
+                  end
+
+                  e.target:highlight()
+            end
+
+            --update the info panel
+            infoPanel.group:dispatchEvent( infoPanelUpdate )
       end
 end
 

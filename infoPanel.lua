@@ -1,6 +1,6 @@
 --Default Panel object and properties.
 local Panel = {
-      message="info", -- Default copy for info panel
+      message="Info Panel", -- Default copy for info panel
 }
 
 
@@ -37,14 +37,16 @@ function Panel:setLabel(label)
 end
 
 
---Update the group's label. Helpful for debug purposes.
-function Panel:updateLabel(message)
-      self.label.text = message
-end
-
+--Update the group's label. Helpful for debug purposes
+--Optional event.target with selected Tile object
+--Optional event.reset boolean to return to default label text
 function Panel:updateInfo(e)
-      print("infoPanel is", e.target.type)
-      self:updateLabel(e.target.type)
+
+      if e.target then
+            self.label.text = "Type: " .. e.target.type .. "\nRow: " .. e.target.row .. "\nColumn: " .. e.target.col
+      elseif e.reset == true then
+            self.label.text = self.message or ""
+      end
 end
 
 
