@@ -155,8 +155,8 @@ infoPanel.group.x, infoPanel.group.y = display.contentWidth/2, display.contentHe
 --Custom Runtime Listener for event dispatches
 local function customEventRelay(e)
       if e.name == "activateTile" then
-            local event = { name="updateInfo", message=e.message, target=e.target}
-            infoPanel.group:dispatchEvent( event )
+            local infoPanelUpdate = { name="updateInfo", target=e.target}
+
 
             --if a tile is already selected
             if settings.focusTile then
@@ -172,7 +172,10 @@ local function customEventRelay(e)
             if settings.focusTile == e.target then
                   e.target:unhighlight()
                   settings.focusTile = nil
-                  return true
+
+                  --reset the info panel details
+                  infoPanelUpdate = { name="updateInfo", reset=true}
+
             else -- otherwise highlight the selected tile and adjacent tiles
 
                   local directions = {"N", "S", "NE", "SE", "NW", "SW"}
@@ -183,6 +186,9 @@ local function customEventRelay(e)
 
                   e.target:highlight()
             end
+
+            --update the info panel
+            infoPanel.group:dispatchEvent( infoPanelUpdate )
       end
 end
 

@@ -78,7 +78,7 @@ end
 function Tile:touch(e)
     local phase = e.phase
     if phase == ("ended") then
-        local event = { name="activateTile", message="activate", target=self } -- self is the Tile instance
+        local event = { name="activateTile", target=self } -- self is the Tile instance
         Runtime:dispatchEvent( event )
         return true -- stop propogation
     end
