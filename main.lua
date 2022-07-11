@@ -60,25 +60,30 @@ end
 setArray(settings, HexArray)
 
 
---randomise the sequence type
+--randomise the sequence base
 local function randomSequence(thisTile)
       local randomTileNum = math.random(1, 3)
-      local newType
+      local newBase
+      local newDecor
       if randomTileNum == 1 then
-            newType = "grass"
+            newBase = "grass"
+            newDecor = "blue"
       elseif randomTileNum == 2 then
-            newType = "ice"
+            newBase = "ice"
+            newDecor = "red"
       elseif randomTileNum == 3 then
-            newType = "dirt"
+            newBase = "dirt"
+            newDecor = "yellow"
       end
-      thisTile:updateType(newType)
+      thisTile:updateBase(newBase)
+      thisTile:updateDecor(newDecor)
 end
 
 
---specify the sequence type
-local function specifySequence(thisTile, type)
-      if type then
-            return thisTile:updateType(type)
+--specify the sequence base
+local function specifySequence(thisTile, base)
+      if base then
+            return thisTile:updateBase(base)
       end
 end
 
@@ -94,7 +99,8 @@ local function createRandomHexGrid(array, settings, displayGroup)
                   local mod = math.fmod(i,2)  -- get Modulo to determin if this is an odd(1) or even(0) row entry (needed for staggered depth)
                   array[i][j] = array[i][j] or {} -- set value to existing value or else empty
                   local tileInstance = Tile:new{
-                        type=array[i][j].type, --could be nil, that's ok. Default will kick in.
+                        base=array[i][j].base, --could be nil, that's ok. Default will kick in.
+                        decor=array[i][j].decor,
                         settings=settings,
                         row = j,
                         col = i,
@@ -109,9 +115,10 @@ local function createRandomHexGrid(array, settings, displayGroup)
                   if settings.mapType == "random" then
                         randomSequence(tileInstance)
                   else
-                        specifySequence(tileInstance, array[i][j].type)
+                        specifySequence(tileInstance, array[i][j].base)
                   end
-                  tileInstance.image:play()
+                  tileInstance.baseImage:play()
+                  tileInstance.decorImage:play()
                   displayGroup:insert(tileInstance.group)
                   array[i][j] = tileInstance
             end
