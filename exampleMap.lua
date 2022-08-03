@@ -3,57 +3,57 @@ local Map =
     {
         {
             {
-                type="grass",
+                base="grass",
                 depth=1
             },
             {
-                type="ice",
+                base="ice",
                 depth=1
             },
             {
-                type=0,
+                base=0,
                 depth=1
             },
         },
         {
             {
-                type="grass",
+                base="grass",
                 depth=2
             },
             {
-                type="ice",
+                base="ice",
                 depth=2
             },
             {
-                type=0,
+                base=0,
                 depth=2
             },
         },
         {
             {
-                type="grass",
+                base="grass",
                 depth=3
             },
             {
-                type="ice",
+                base="ice",
                 depth=3
             },
             {
-                type="grass",
+                base="grass",
                 depth=3
             },
         },
         {
             {
-                type="grass",
+                base="grass",
                 depth=1
             },
             {
-                type="ice",
+                base="ice",
                 depth=1
             },
             {
-                type=0,
+                base=0,
                 depth=1
             },
         },
