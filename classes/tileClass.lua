@@ -1,17 +1,21 @@
 --Default Tile object and properties.
 local Tile = {
-    type = "plant",
+    type = "plant", -- not used yet
     base = "grass", -- determins what sequence to use in sprite imageSheet
-    decor = "yellow", --not used yet
+    decor = "yellow", -- not used yet
     depth = 0, -- used as offset on Y-Axis to give impression of depth
     row = 0,
     col = 0,
-    array = {}
+    array = {}, -- record of the hexarray this tile belongs to
+    defaultImageSheet = "images/decorPlant.png", -- default imagery to set up baseline
+    defaultBaseImageSheet = "images/tileSheet.png",
+    defaultBaseMask = "images/maskTile4px.png",
+    defaultOutline = "images/outlineTile.png"
 }
 
 
 --Constructor
---Args will default to property values above, or can pass parameters directly
+--Args will default to property values above, or can override (optional) by passing same as parameters
 function Tile:new( ... )
 
     --Create a local table for new tile instance and set Meta and Index
@@ -24,23 +28,29 @@ function Tile:new( ... )
     newTile.group.anchorChildren = true
     newTile.baseImage = newTile:baseImageSheet()
     newTile.label = newTile:setLabel(--[[newTile.depth]])
-    newTile.outline = newTile:setImage("outlineTile.png")
+    newTile.outline = newTile:setOutline(newTile.alpha)
     newTile.decorImage = newTile:decorImageSheet()
     newTile.group:insert(newTile.baseImage)
     newTile.group:insert(newTile.decorImage)
     newTile.group:insert(newTile.label)
     newTile.group:insert(newTile.outline)
-    newTile.outline.alpha=0
+
+
     return newTile -- return new tile instance
 
 end
 
 
---Display an image based on the Tile's base property
---Requires: String of image to be used
-function Tile:setImage(filename)
-    return display.newImageRect(filename, self.settings.tileWidth, self.settings.tileHeight )
+--Display an outline image used for highlighting the Tile
+--Optional Alpha: int used for alpha between 0 and 1
+--Returns outline image object
+function Tile:setOutline(alpha)
+      local outline = display.newImageRect(self.defaultOutline, self.settings.tileWidth, self.settings.tileHeight )
+      outline.alpha=alpha or 0
+
+      return outline
 end
+
 
 function Tile:baseImageSheet(imageSheet, options, sequenceData)
 
@@ -55,7 +65,7 @@ function Tile:baseImageSheet(imageSheet, options, sequenceData)
         sheetContentWidth = 768,  -- width of original 1x size of entire sheet
         sheetContentHeight = 256  -- height of original 1x size of entire sheet
     }
-    local imageSheet = imageSheet or graphics.newImageSheet( "tileSheet.png", options )
+    local imageSheet = imageSheet or graphics.newImageSheet( self.defaultBaseImageSheet, options )
 
     local sequenceData = sequenceData or
     {
@@ -69,7 +79,7 @@ function Tile:baseImageSheet(imageSheet, options, sequenceData)
     sprite:setSequence(self.base)
     sprite:addEventListener("touch", self) -- adding touch event listener on the sprite
     sprite:addEventListener("updateBase", self) -- adding update base event listener on the sprite
-    sprite:setMask(graphics.newMask( "maskTile4px.png" )) -- add mask
+    sprite:setMask(graphics.newMask( self.defaultBaseMask )) -- add mask
     return sprite
 
 end
@@ -88,7 +98,7 @@ function Tile:decorImageSheet(imageSheet, options, sequenceData)
         sheetContentWidth = 763,  -- width of original 1x size of entire sheet
         sheetContentHeight = 220  -- height of original 1x size of entire sheet
     }
-    local imageSheet = imageSheet or graphics.newImageSheet( "decorPlant.png", options )
+    local imageSheet = imageSheet or graphics.newImageSheet( self.defaultImageSheet, options )
 
     local sequenceData = sequenceData or
     {
@@ -99,7 +109,7 @@ function Tile:decorImageSheet(imageSheet, options, sequenceData)
 
     local sprite = display.newSprite( imageSheet, sequenceData )
     sprite:scale( self.settings.scaleFactor, self.settings.scaleFactor )
-    sprite.y = sprite.y - 17 -- temproary placement - testing for height overlapping
+    sprite.y = sprite.y - (sprite.height/4)*self.settings.scaleFactor -- temproary placement - testing for height overlapping
     sprite:setSequence(self.decor)
     sprite:addEventListener("updateDecor", self) -- adding update decor event listener on the sprite
     return sprite
@@ -138,13 +148,18 @@ end
 
 
 --Add some extra depth to the tile
---Requires an amount to drop in depth
+--Optional an amount to drop in depth. Typically one unit is settings.frontHeight
 function Tile:setDepth(passedDepth)
     local newDepth = passedDepth or self.depth
     self.depth = newDepth
     self.group.y = self.group.y + self.depth -- move the group down by new depth amount
     --self:updateLabel(1-(self.depth/self.settings.frontHeight)*0.20) -- optional update label
-    self.baseImage:setFillColor(1, 1, 1, (1-(self.depth/self.settings.frontHeight)*0.20)) -- reduce opacity for deeper groups.
+    --self.baseImage:setFillColor(1, 1, 1, (1-(self.depth/self.settings.frontHeight)*0.20)) -- reduce opacity for deeper groups.
+    if self.depth > 0 then
+          self.baseImage.fill.effect = "filter.desaturate"
+          self.baseImage.fill.effect.intensity = 0.35
+    end
+
 end
 
 

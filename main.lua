@@ -1,7 +1,7 @@
 
-local Tile = require( "tileClass" ) --This sets Tile as a reference to the class file
-local Panel = require("infoPanel")  --Set Panel as info Panel Class
---local HexArray = require("exampleMap") -- Load predefined map
+local Tile = require( "classes.tileClass" ) --This sets Tile as a reference to the class file
+local Panel = require("classes.infoPanel")  --Set Panel as info Panel Class
+--local HexArray = require("maps.exampleMap") -- Load predefined map
 local HexArray = {}
 -- Set default anchor points for objects to Center, fill & background colours
 display.setDefault( "anchorX", 0.5 )
@@ -15,17 +15,17 @@ local tileDisplayGroup
 
 
 --Grid and Image Settings
-local scaleFactor = 0.25
+local scaleFactor = .15
 local settings = {
       scaleFactor = scaleFactor,
-      rows = 4, -- overridden if map is predefined
-      cols = 6, -- overridden if map is predefined
+      rows = 6, -- overridden if map is predefined
+      cols = 8, -- overridden if map is predefined
       mapType = "random",
       tileWidth = 256*scaleFactor,
       tileHeight = 256*scaleFactor,
       innerWidth = 128*scaleFactor,
       innerHeight = 209*scaleFactor,
-      frontHeight = 47*scaleFactor,
+      frontHeight = 46*scaleFactor,
 }
 
 
@@ -91,7 +91,6 @@ end
 --Requires: an array to populate, global settings and a displayGroup to insert tile instances in to.
 local function createRandomHexGrid(array, settings, displayGroup)
       --Populate the array with rows and cols variables making it a multidimentional array
-
       local cols = #array or 0
       for i=1, cols do
             local rows = #array[i] or {}
@@ -104,8 +103,10 @@ local function createRandomHexGrid(array, settings, displayGroup)
                         settings=settings,
                         row = j,
                         col = i,
-                        array = array
+                        array = array,
+                        depth=math.random(0, 1)*settings.frontHeight
                   }
+                  tileInstance:setDepth()
 
                   --space out the instances based on cols and rows and offset
                   tileInstance.group.x = i*settings.innerWidth*1.5
@@ -151,10 +152,17 @@ tileDisplayGroup.anchorX, tileDisplayGroup.anchorY = 0.5, 0.5
 
 --Examples of manipulating tiles
 --HexArray[2][2].group.alpha = 0  -- hides tile group
-HexArray[3][3]:setDepth(settings.frontHeight) -- adds more depth
-HexArray[4][1]:setDepth(settings.frontHeight) -- adds more depth
+--HexArray[3][3]:setDepth(settings.frontHeight) -- adds more depth
+--HexArray[4][1]:setDepth(settings.frontHeight) -- adds more depth
 
-
+local function setDepths()
+      for i = 1, #HexArray do
+            for j = 1, #HexArray[i] do
+                  HexArray[i][j]:setDepth()
+            end
+      end
+end
+setDepths()
 --Create an Info Panel to show details of what tile has been selected
 local infoPanel = Panel:new{message="Select a Tile"}
 infoPanel.group.x, infoPanel.group.y = display.contentWidth/2, display.contentHeight-display.contentHeight/4
