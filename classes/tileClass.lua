@@ -26,6 +26,7 @@ function Tile:new( ... )
     --Set up new display group with baseImage and label for this tile instance
     newTile.group = display.newGroup()
     newTile.group.anchorChildren = true
+    newTile.group.instance = newTile -- useful for referencing instance from group level
     newTile.baseImage = newTile:baseImageSheet()
     newTile.label = newTile:setLabel(--[[newTile.depth]])
     newTile.outline = newTile:setOutline(newTile.alpha)
