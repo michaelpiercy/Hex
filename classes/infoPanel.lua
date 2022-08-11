@@ -43,7 +43,7 @@ end
 function Panel:updateInfo(e)
 
       if e.target then
-            self.label.text = "Base: " .. e.target.base .. "\nRow: " .. e.target.row .. "\nColumn: " .. e.target.col
+            self.label.text = "Base: " .. e.target.base .. "\nRow: " .. e.target.row .. "\nColumn: " .. e.target.col .. "\nDepth: " .. e.target.depth
       elseif e.reset == true then
             self.label.text = self.message or ""
       end
